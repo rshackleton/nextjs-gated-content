@@ -62,6 +62,7 @@ const Index: React.FC<IndexProps> = ({ contentItem, preview }) => {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(getStructuredData(contentItem), null, 2) }}
         />
+        <meta name="google-site-verification" content="jQ-3SoNf7fN4tNyYecVHivFtUVcRGa7OMBL1BXsLXt0" />
       </Head>
       <main className="container py-8 px-4 mx-auto">
         <div className="prose mx-auto lg:prose-xl">
