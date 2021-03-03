@@ -167,10 +167,10 @@ function formatDate(input: string): string {
 function getStructuredData(item: ContentItemModel) {
   const data: any = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': 'WebPage',
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://${process.env.NEXT_PUBLIC_HOST}`,
+      '@id': `https://${process.env.NEXT_PUBLIC_HOST}/`,
     },
     headline: item.title,
     datePublished: item.date,
