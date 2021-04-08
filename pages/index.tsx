@@ -2,7 +2,6 @@ import { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import React, { useEffect, useState } from 'react';
-import { getGatedContentItem } from '../lib/getGatedContentItem';
 
 export type ContentItemModel = {
   date: string;
@@ -19,9 +18,7 @@ export type IndexProps = {
 const Index: React.FC<IndexProps> = ({ contentItem, preview }) => {
   const router = useRouter();
 
-  const [gatedContent, setGatedContent] = useState(contentItem.gatedContent);
-  const [animal, setAnimal] = useState('');
-  const [loading, setLoading] = useState(false);
+  // @todo: State management.
 
   useEffect(() => {
     doAsync();
@@ -35,17 +32,7 @@ const Index: React.FC<IndexProps> = ({ contentItem, preview }) => {
         return;
       }
 
-      // If we think this is a Google request then fetch content immediately.
-      const isGoogle = navigator.userAgent.toLowerCase().includes('googlebot');
-
-      if (isGoogle) {
-        setLoading(true);
-
-        const content = await fetchContent({ animal });
-
-        setGatedContent(content);
-        setLoading(false);
-      }
+      // @todo: Add check for Google user agent.
     }
   }, []);
 
@@ -62,48 +49,14 @@ const Index: React.FC<IndexProps> = ({ contentItem, preview }) => {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(getStructuredData(contentItem), null, 2) }}
         />
-        <meta name="google-site-verification" content="jQ-3SoNf7fN4tNyYecVHivFtUVcRGa7OMBL1BXsLXt0" />
+        <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION} />
       </Head>
       <main className="container py-8 px-4 mx-auto">
         <div className="prose mx-auto lg:prose-xl">
           <h1>{contentItem.title}</h1>
-          {loading && <p>We are loading your content! 👀</p>}
-          {!loading && (preview || !gatedContent) && (
-            <div className="no-paywall">
-              <div className="mb-6" dangerouslySetInnerHTML={{ __html: contentItem.freeContent }} />
-              <form
-                className="grid grid-cols-2 gap-4 mb-6"
-                onSubmit={async (event) => {
-                  event.preventDefault();
-
-                  const content = await fetchContent({
-                    animal: animal,
-                  });
-
-                  setGatedContent(content);
-                }}
-              >
-                <label className="font-bold" htmlFor="favourite-animal">
-                  What is your favourite animal?
-                </label>
-                <input
-                  id="favourite-animal"
-                  className="rounded"
-                  name="favourite-animal"
-                  type="text"
-                  placeholder="🐶"
-                  value={animal}
-                  onChange={(event) => setAnimal(event.target.value)}
-                />
-                <button className="col-start-2 px-6 py-2 rounded place-self-end text-white bg-purple-700" type="submit">
-                  Gimme My Content!
-                </button>
-              </form>
-            </div>
-          )}
-          {!loading && (preview || gatedContent) && (
-            <div className="paywall" dangerouslySetInnerHTML={{ __html: gatedContent }} />
-          )}
+          {/* @todo: Loading content. */}
+          {/* @todo: Lead content. */}
+          {/* @todo: Gated content. */}
           <small>Last Modified: {formatDate(contentItem.date)}</small>
         </div>
       </main>
@@ -111,47 +64,22 @@ const Index: React.FC<IndexProps> = ({ contentItem, preview }) => {
   );
 
   async function fetchContent(formData: { animal?: string }): Promise<string | null> {
-    const res = await fetch('/api/gated-content', {
-      body: JSON.stringify(formData),
-      cache: 'no-cache',
-      credentials: 'omit',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      return data.gatedContent as string | null;
-    } else {
-      console.error(`Error: ${data.message}`);
-      return null;
-    }
+    // @todo: Fetch content implementation.
+    return Promise.resolve(null);
   }
 };
 
 export default Index;
 
 export const getStaticProps: GetStaticProps<IndexProps> = async ({ preview = false }) => {
-  const contentItem = await getGatedContentItem(preview);
-
-  if (!contentItem) {
-    console.log(`Could not find content item.`);
-
-    return {
-      notFound: true,
-    };
-  }
-
+  // @todo: Fetch content and return props.
   return {
     props: {
       contentItem: {
-        date: contentItem.system.lastModified.toISOString(),
-        freeContent: contentItem.free_content.value,
-        gatedContent: preview ? contentItem.gated_content.value : '',
-        title: contentItem.title.value,
+        date: new Date().toISOString(),
+        freeContent: 'freeContent',
+        gatedContent: 'gatedContent',
+        title: 'Gated Content in Jamstack 🤯',
       },
       preview,
     },
@@ -165,27 +93,6 @@ function formatDate(input: string): string {
 }
 
 function getStructuredData(item: ContentItemModel) {
-  const data: any = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': `https://${process.env.NEXT_PUBLIC_HOST}/`,
-    },
-    headline: item.title,
-    datePublished: item.date,
-    dateModified: item.date,
-    author: {
-      '@type': 'Person',
-      name: 'Richard Shackleton',
-    },
-    isAccessibleForFree: 'False',
-    hasPart: {
-      '@type': 'WebPageElement',
-      isAccessibleForFree: 'False',
-      cssSelector: '.paywall',
-    },
-  };
-
-  return data;
+  // @todo: Structured data.
+  return {};
 }
